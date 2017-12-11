@@ -1,0 +1,1 @@
+# php-mining-pools-parser

@@ -1,0 +1,11 @@
+{
+    "require": {
+        "fabpot/goutte": "^3.2",
+        "vlucas/phpdotenv": "^2.4"
+    },
+    "scripts": {
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ]
+    }
+}
