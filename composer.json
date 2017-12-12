@@ -1,7 +1,9 @@
 {
     "require": {
         "fabpot/goutte": "^3.2",
-        "vlucas/phpdotenv": "^2.4"
+        "vlucas/phpdotenv": "^2.4",
+        "illuminate/database": "^5.5",
+        "illuminate/events": "^5.5"
     },
     "scripts": {
         "post-root-package-install": [

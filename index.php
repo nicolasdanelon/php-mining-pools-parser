@@ -1,6 +1,11 @@
 <?php
 
-require_once(__DIR__ . '/vendor/autoload.php');
+require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/db.php';
+
+use Goutte\Client;
+use Illuminate\Database\Capsule\Manager as Capsule;
+
 
 $dotenv = new Dotenv\Dotenv(__DIR__);
 $dotenv->load();
@@ -8,7 +13,6 @@ $dotenv->load();
 $btc = getenv('BTC_WALLET');
 $mphKey = getenv('MPH_API_KEY');
 
-use Goutte\Client;
 $client = new Client();
 $crawlerZ = $client->request('GET', 'http://www.zpool.ca/site/wallet_results?address=' . $btc);
 $crawlerH = $client->request('GET', 'http://pool.hashrefinery.com/site/wallet_results?address=' . $btc);
@@ -86,7 +90,7 @@ foreach ($coins as $coin) {
 }
 
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, 'http://www.zpool.ca/api/wallet?address=' . $btc );
+curl_setopt($ch, CURLOPT_URL, 'http://www.zpool.ca/api/wallet?address=' . $btc);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $server_output = curl_exec($ch);
 curl_close($ch);
@@ -169,23 +173,46 @@ echo '<br><br>';
 
 echo '<h3>zpool</h3>';
 $crawlerZ->filter('table td')->each(function ($node, $key) {
-	if ($key == 20 || $key == 22) 
-	echo $node->text() . '<br>';
+    if ($key == 20 || $key == 22) {
+        echo $node->text() . '<br>';
+    }
 });
 
 echo '<h3>hashrefinery</h3>';
 $crawlerH->filter('table td')->each(function ($node, $key) {
-	if ($key == 25 || $key == 27) 
+    if ($key == 25 || $key == 27) {
         echo $node->text() . '<br>';
+    }
 });
 
 echo '<h3>ahashpool</h3>';
 $crawlerA->filter('table td')->each(function ($node, $key) {
-if ($key == 23 || $key == 21) 
+    if ($key == 23 || $key == 21) {
         echo $node->text() . '<br>';
+    }
 });
+
+if (!empty($total['hr']) &&
+    !empty($total['zp']) &&
+    !empty($total['mph']) &&
+    !empty($total['ad'])
+    ) {
+
+
+    Capsule::table('cryptos')
+        ->insert(['coin' => $total['hr'], 'pool' => 'hashrefinery', 'created_at' => \Carbon\Carbon::now(), 'updated_at'=> \Carbon\Carbon::now()]);
+
+    Capsule::table('cryptos')
+        ->insert(['coin' => $total['zp'], 'pool' => 'zpool', 'created_at' => \Carbon\Carbon::now(), 'updated_at'=> \Carbon\Carbon::now()]);
+
+    Capsule::table('cryptos')
+        ->insert(['coin' => $total['mph'], 'pool' => 'miningpoolhub', 'created_at' => \Carbon\Carbon::now(), 'updated_at'=> \Carbon\Carbon::now()]);
+
+    Capsule::table('cryptos')
+        ->insert(['coin' => $total['ad'], 'pool' => 'adahash', 'created_at' => \Carbon\Carbon::now(), 'updated_at'=> \Carbon\Carbon::now()]);
+
+}
 
 ?>
 </body>
 </html>
-
